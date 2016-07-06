@@ -1,133 +1,34 @@
-Pa11y Dashboard
-===============
+Pa11y Dashboard Docker Container
+================================
+This is an instance of the [pa11y-dashboard](https://github.com/pa11y/dashboard) running within a Docker instance for easy deployment, designed to run against a MongoDB instance running within another Docker container.
 
 Pa11y Dashboard is a web interface to the [Pa11y][pa11y] accessibility reporter; allowing you to focus on *fixing* issues rather than hunting them down.
-
-![Version][shield-version]
-[![Node.js version support][shield-node]][info-node]
-[![Build status][shield-build]][info-build]
-[![GPL-3.0 licensed][shield-license]][info-license]
-
----
-
-✨ 🔜 ✨ The Pa11y team is very excited to announce plans for the successor to Pa11y Dashboard and Pa11y Webservice, codename "Sidekick". Help us define the features that you want to see by visiting the [proposal][sidekick-proposal]. ✨  
-
----
 
 
 ![dashboard](https://f.cloud.github.com/assets/1225142/1549567/f0361e72-4de8-11e3-8d14-3fe6900cc15d.jpg)
 ![results-page](https://f.cloud.github.com/assets/1225142/1549568/f225aa54-4de8-11e3-8b25-ef2f405997a3.jpg)
 
 
-Setup
------
+### Requirements
+- Docker
 
-Pa11y Dashboard requires [Node.js][node] 4+ and [PhantomJS][phantom]. See the [Pa11y][pa11y] documentation for detailed instructions on how to install these dependencies on your operating system.
-
-You'll also need to have [MongoDB][mongo] installed and running. See the [MongoDB install guide][mongo-install] for more information on this.
-
-You'll then need to clone this repo locally and install dependencies with `npm install`. Now you need to add some configuration before you can run the application. We can do this in two ways:
-
-### Option 1: Using Environment Variables
-
-Each configuration can be set with an environment variable rather than a config file. For example to run the application on port `8080` you can use the following:
-
-```sh
-PORT=8080 node index.js
+### Setup
+1. Launch a Docker container of MongoDB, and give it a name.
 ```
-
-The [available configurations are documented here](#configurations).
-
-### Option 2: Using Config Files
-
-You'll need to copy and modify different config files depending on your environment (set with `NODE_ENV`):
-
-```sh
-cp config/development.sample.json config/development.json
-cp config/production.sample.json config/production.json
-cp config/test.sample.json config/test.json
+$ docker run --name mongodb -d mongo
 ```
-
-Each of these files defines configurations for a different environment. If you're just running the application locally, then you should be OK with just development and test configurations. The [available configurations are documented here](#configurations).
-
-Now that you've got your application configured, make sure you have a MongoDB server running with the `mongod` command in another terminal window. You can run in each mode by changing the `NODE_ENV` environment variable:
-
-```sh
-NODE_ENV=development node index.js
+2. Build a container from the pa11y Dockerfile
 ```
-
-See [development instructions](#development) for more information about running locally (and restarting automatically when files change).
-
-
-Configurations
---------------
-
-The boot configurations for Pa11y Dashboard are as follows. Look at the sample JSON files in the repo for example usage.
-
-### port
-*(number)* The port to run the application on. Set via a config file or the `PORT` environment variable.
-
-### noindex
-*(boolean)* If set to `true` (default), the dashboard will not be indexed by search engines. Set to `false` to allow indexing. Set via a config file or the `NOINDEX` environment variable.
-
-### readonly
-*(boolean)* If set to `true`, users will not be able to add, delete or run URLs (defaults to `false`). Set via a config file or the `READONLY` environment variable.
-
-### siteMessage
-*(string)* A message to display prominently on the site home page. Defaults to `null`.
-
-### webservice
-This can either be an object containing [Pa11y Webservice configurations][pa11y-webservice-config], or a string which is the base URL of a [Pa11y Webservice][pa11y-webservice] instance you are running separately. If using environment variables, prefix the webservice vars with `WEBSERVICE_`.
-
-
-Development
------------
-
-To develop Pa11y Dashboard, you'll need to clone the repo and get set up as outlined in the [setup guide](#setup).
-
-You'll need to start the application in test mode with:
-
-```sh
-NODE_ENV=test node index.js
+$ cd src
+$ docker build -t pa11y-docker .
 ```
-
-Now you'll be able to run the following commands:
-
-```sh
-make       # Run the lint and test tasks together
-make lint  # Run linters with the correct config
-make test  # Run integration tests
+3. Launch a Docker container of pa11y dashboard, linking it to the MongoDB instance you launched earlier, mapping port 4000, and specifying an environment from 'production', 'development' and test'. These are purely different databases and have no functional difference.
 ```
-
-Code with lint errors or failing tests will not be accepted, please use the build tools outlined above.
-
-To compile the client-side JavaScript and CSS, you'll need the following commands. Compiled code is committed to the repository.
-
-```sh
-make less    # Compile the site CSS from LESS files
-make uglify  # Compile and uglify the client-side JavaScript
+$ docker run -it --link mongodb:mongo -p 4000:4000 -e "NODE_ENV=production" pa11y-docker
 ```
+4. Access the dashboard by navigating to http://docker:4000
 
-
-Useful Resources
--------
-* [Setting up An Accessibility Dashboard from Scratch with Pa11y on DigitialOcean][resource-una-k]
-
-
-Support and Migration
----------------------
-
-Pa11y Dashboard major versions are normally supported for 6 months after their last minor release. This means that patch-level changes will be added and bugs will be fixed. The table below outlines the end-of-support dates for major versions, and the last minor release for that version.
-
-We also maintain a [migration guide](MIGRATION.md) to help you migrate.
-
-| :grey_question: | Major Version | Last Minor Release | Node.js Versions | Support End Date |
-| :-------------- | :------------ | :----------------- | :--------------- | :--------------- |
-| :heart:         | 2             | N/A                | 4+               | N/A              |
-| :hourglass:     | 1             | 1.12               | 0.10–6           | 2016-12-05       |
-
-If you're opening issues related to these, please mention the version that the issue relates to.
-
+Note: If you shut down the MongoDB container, all the information you have gathered will be lost. If you would rather point to a fixed installation of MongoDB, change the 'database' address in one of the /config json files and rebuild the pa11y-docker container.
 
 License
 -------
