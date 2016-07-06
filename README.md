@@ -19,7 +19,6 @@ $ docker run --name mongodb -d mongo
 ```
 2. Build a container from the pa11y Dockerfile
 ```
-$ cd src
 $ docker build -t pa11y-docker .
 ```
 3. Launch a Docker container of pa11y dashboard, linking it to the MongoDB instance you launched earlier, mapping port 4000, and specifying an environment from 'production', 'development' and test'. These are purely different databases and have no functional difference.
