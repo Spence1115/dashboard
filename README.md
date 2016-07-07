@@ -13,19 +13,19 @@ Pa11y Dashboard is a web interface to the [Pa11y][pa11y] accessibility reporter;
 - Docker
 
 ### Setup
-1. Launch a Docker container of MongoDB, and give it a name.
+- Launch a Docker container of MongoDB, and give it a name.
 ```
 $ docker run --name mongodb -d mongo
 ```
-2. Build a container from the pa11y Dockerfile
+- Build a container from the pa11y Dockerfile
 ```
 $ docker build -t pa11y-docker .
 ```
-3. Launch a Docker container of pa11y dashboard, linking it to the MongoDB instance you launched earlier, mapping port 4000, and specifying an environment from 'production', 'development' and test'. These are purely different databases and have no functional difference.
+- Launch a Docker container of pa11y dashboard, linking it to the MongoDB instance you launched earlier, mapping port 4000, and specifying an environment from 'production', 'development' and test'. These are purely different databases and have no functional difference.
 ```
 $ docker run -it --link mongodb:mongo -p 4000:4000 -e "NODE_ENV=production" pa11y-docker
 ```
-4. Access the dashboard by navigating to http://docker:4000
+- Access the dashboard by navigating to ```http://docker:4000```
 
 Note: If you shut down the MongoDB container, all the information you have gathered will be lost. If you would rather point to a fixed installation of MongoDB, change the 'database' address in one of the /config json files and rebuild the pa11y-docker container.
 
